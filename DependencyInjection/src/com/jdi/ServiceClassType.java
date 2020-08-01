@@ -2,15 +2,15 @@ package com.jdi;
 
 public enum ServiceClassType {
 	
-	STATELESS,
-	STATEFUL,
+	MULTITON,
+	SINGLETON,
 	;
 	
 	public static ServiceClassType getType(String type) {
-		ServiceClassType ret = STATELESS;
+		ServiceClassType ret = SINGLETON;
 		
 		for (ServiceClassType it : values()) {
-			if (it.name().equals(type)) {
+			if (it.name().equalsIgnoreCase(type)) {
 				ret = it;
 			}
 		}

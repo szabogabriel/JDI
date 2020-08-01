@@ -90,6 +90,7 @@ public class ServiceFactoryImpl implements ServiceFactory {
 						ret = null;
 					}
 				}
+				i++;
 			}
 		}
 		
@@ -133,7 +134,7 @@ public class ServiceFactoryImpl implements ServiceFactory {
 		Optional<String> type = CONFIG.get(PREFIX_TYPE + clss.getName());
 		return 
 				!type.isPresent() || 
-				!VALUE_MULTITON.equalsIgnoreCase(type.get());
+				ServiceClassType.getType(type.get()).equals(ServiceClassType.SINGLETON);
 	}
 	
 	private boolean isInCache(String className) {

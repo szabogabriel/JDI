@@ -11,14 +11,13 @@ import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.jdi.ServiceFactory;
-import com.jdi.ServiceFactoryImpl;
 import com.jdi.data.ParamInterface;
 import com.jdi.data.ParamInterfaceImpl;
 import com.jdi.data.TestInterface;
 import com.jdi.data.TestInterfaceImpl1;
 import com.jdi.data.TestInterfaceImpl2;
 import com.jdi.data.TestInterfaceImpl3;
+import com.jdi.data.TestInterfaceImpl4;
 
 public class ServiceFactoryTest {
 	
@@ -66,7 +65,7 @@ public class ServiceFactoryTest {
 	@Test
 	public void testCreateInstanceOfServiceImplWithNoConstructorMultiton() {
 		configService.set(ServiceFactory.PREFIX_IMPL + TestInterface.class.getName(), TestInterfaceImpl1.class.getName());
-		configService.set(ServiceFactory.PREFIX_TYPE + TestInterface.class.getName(), "Multiton");
+		configService.set(ServiceFactory.PREFIX_TYPE + TestInterface.class.getName(), "multiton");
 		
 		Optional<TestInterface> tmp = serviceFactory.getServiceImpl(TestInterface.class);
 		
@@ -101,6 +100,17 @@ public class ServiceFactoryTest {
 	@Test
 	public void testCreateInstanceOfServiceImplWithMultipleAttributes() {
 		configService.set(ServiceFactory.PREFIX_IMPL + TestInterface.class.getName(), TestInterfaceImpl3.class.getName());
+		configService.set(ServiceFactory.PREFIX_IMPL + ParamInterface.class.getName(), ParamInterfaceImpl.class.getName());
+		
+		Optional<TestInterface> tmp = serviceFactory.getServiceImpl(TestInterface.class);
+		
+		assertTrue(tmp.isPresent());
+		assertNotNull(tmp.get());
+	}
+	
+	@Test
+	public void testCreateInstanceOfServiceImplNotAvailableParams() {
+		configService.set(ServiceFactory.PREFIX_IMPL + TestInterface.class.getName(), TestInterfaceImpl4.class.getName());
 		configService.set(ServiceFactory.PREFIX_IMPL + ParamInterface.class.getName(), ParamInterfaceImpl.class.getName());
 		
 		Optional<TestInterface> tmp = serviceFactory.getServiceImpl(TestInterface.class);
