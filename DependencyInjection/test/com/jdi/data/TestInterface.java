@@ -1,4 +1,4 @@
-package com.di.data;
+package com.jdi.data;
 
 public interface TestInterface {
 

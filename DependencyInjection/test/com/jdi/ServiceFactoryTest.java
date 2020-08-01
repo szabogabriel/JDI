@@ -1,4 +1,4 @@
-package com.di;
+package com.jdi;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -11,12 +11,14 @@ import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.di.data.ParamInterface;
-import com.di.data.ParamInterfaceImpl;
-import com.di.data.TestInterface;
-import com.di.data.TestInterfaceImpl1;
-import com.di.data.TestInterfaceImpl2;
-import com.di.data.TestInterfaceImpl3;
+import com.jdi.ServiceFactory;
+import com.jdi.ServiceFactoryImpl;
+import com.jdi.data.ParamInterface;
+import com.jdi.data.ParamInterfaceImpl;
+import com.jdi.data.TestInterface;
+import com.jdi.data.TestInterfaceImpl1;
+import com.jdi.data.TestInterfaceImpl2;
+import com.jdi.data.TestInterfaceImpl3;
 
 public class ServiceFactoryTest {
 	

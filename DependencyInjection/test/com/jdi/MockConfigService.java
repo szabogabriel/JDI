@@ -1,10 +1,10 @@
-package com.di;
+package com.jdi;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-import com.di.ConfigService;
+import com.jdi.ConfigService;
 
 public class MockConfigService implements ConfigService {
 	

@@ -1,6 +1,6 @@
-package com.di.data;
+package com.jdi.data;
 
-import com.di.ConfigService;
+import com.jdi.ConfigService;
 
 public class TestInterfaceImpl2 implements TestInterface {
 	
