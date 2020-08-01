@@ -1,0 +1,14 @@
+<project name="DependencyInjectionBuild" basedir="." default="info">
+	
+	<property file="build.properties"/>
+	<property file="projects.properties"/>
+	
+	<target name="info">
+	</target>
+	
+	<target name="DependencyInjection">
+		<ant antfile="${project.dir.DependencyInjection}/build.xml" target="all" dir="${project.dir.DependencyInjection}" inheritall="false">
+			<property name="project.name" value="${project.name.DependencyInjection}" />
+		</ant>
+	</target>
+</project>
