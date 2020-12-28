@@ -28,9 +28,12 @@ public class ServiceFactoryImpl implements ServiceFactory {
 		if (service != null) {
 			Optional<String> implementationToCreate = getClassToInstantiate(service);
 			if (implementationToCreate.isPresent()) {
-				if (!isInCache(implementationToCreate.get())) {
+				String implToCreate = implementationToCreate.get();
+				if (isInCache(implToCreate)) {
+					ret = getFromCache(implToCreate);					
+				} else {
 					try {
-						Object newInstance = createInstance(implementationToCreate.get());
+						Object newInstance = createInstance(implToCreate);
 						if (isSingleton(service)) {
 							storeInCache(newInstance.getClass(), newInstance);
 						}
@@ -38,8 +41,6 @@ public class ServiceFactoryImpl implements ServiceFactory {
 					} catch (ClassNotFoundException |InstantiationException | IllegalAccessException  ex) {
 						ex.printStackTrace();
 					}
-				} else {
-					ret = getFromCache(implementationToCreate.get());
 				}
 			}
 		}
@@ -55,54 +56,80 @@ public class ServiceFactoryImpl implements ServiceFactory {
 		Class<?> clss = Class.forName(name);
 		
 		List<Constructor<?>> constructors = getPublicConstructors(clss.getConstructors());
-		Optional<Constructor<?>> zeroArgument = getPublicZeroArgumentConstructor(constructors);
 		
-		if (zeroArgument.isPresent()) {
+		if (isPublicZeroArgumentConstructorPresent(constructors)) {
 			ret = clss.newInstance();
 		} else {
-			constructors.sort((c1, c2) -> c1.getParameterCount() - c2.getParameterCount());
-			int i = 0;
-			while (i < constructors.size() && ret == null) {
-				Parameter [] params = constructors.get(i).getParameters();
-				Object [] paramsToSend = new Object[params.length];
-
-				boolean shouldProgress = true;
-				
-				for (int j = 0; j < params.length && shouldProgress; j++) {
-					if (params[i].getType().equals(ConfigService.class)) {
-						paramsToSend[i] = CONFIG;
-					} else {
-						Optional<?> toCreate = getServiceImpl(params[i].getType());
-						if (toCreate.isPresent()) {
-							paramsToSend[i] = toCreate.get();
-						} else {
-							shouldProgress = false;
-						}
-					}
-				}
-				
-				if (shouldProgress) {
-					try {
-						ret = constructors.get(i).newInstance(paramsToSend);
-					} catch (InstantiationException | IllegalAccessException | IllegalArgumentException
-							| InvocationTargetException e) {
-						shouldProgress = false;
-						ret = null;
-					}
-				}
-				i++;
-			}
+			ret = createInstance(constructors);
 		}
 		
 		return ret;
+	}
+	
+	private Object createInstance(List<Constructor<?>> constructors) {
+		Object ret = null;
+		
+		constructors.sort((c1, c2) -> c1.getParameterCount() - c2.getParameterCount());
+		
+		int i = 0;
+		while (i < constructors.size() && ret == null) {
+			ret = createInstance(constructors.get(i));
+			i++;
+		}
+		
+		return ret;
+	}
+	
+	private Object createInstance(Constructor<?> constructor) {
+		Object ret = null;
+		Parameter [] params = constructor.getParameters();
+		Object [] paramsToSend = createParameterInstances(params);
+		
+		if (isEveryParameterSet(paramsToSend)) {
+			try {
+				ret = constructor.newInstance(paramsToSend);
+			} catch (InstantiationException | IllegalAccessException | IllegalArgumentException
+					| InvocationTargetException e) {
+				ret = null;
+			}
+		}
+		return ret;
+	}
+	
+	private boolean isEveryParameterSet(Object[] params) {
+		for (Object it : params) {
+			if (it == null) {
+				return false;
+			}
+		}
+		return true;
+	}
+	
+	private Object[] createParameterInstances(Parameter[] params) {
+		Object[] paramsToSend = new Object[params.length];
+		
+		for (int j = 0; j < params.length; j++) {
+			if (params[j].getType().equals(ConfigService.class)) {
+				paramsToSend[j] = CONFIG;
+			} else {
+				Optional<?> toCreate = getServiceImpl(params[j].getType());
+				if (toCreate.isPresent()) {
+					paramsToSend[j] = toCreate.get();
+				} else {
+					paramsToSend[j] = null;
+				}
+			}
+		}
+		
+		return paramsToSend;
 	}
 	
 	private List<Constructor<?>> getPublicConstructors(Constructor<?> [] constructors) {
 		return Arrays.asList(constructors).parallelStream().filter(c -> Modifier.isPublic(c.getModifiers())).collect(Collectors.toList());
 	}
 	
-	private Optional<Constructor<?>> getPublicZeroArgumentConstructor(List<Constructor<?>> constructors) {
-		return constructors.parallelStream().filter(c -> c.getParameterCount() == 0).findAny();
+	private boolean isPublicZeroArgumentConstructorPresent(List<Constructor<?>> constructors) {
+		return constructors.parallelStream().filter(c -> c.getParameterCount() == 0).findAny().isPresent();
 	}
 	
 	private Optional<String> getClassToInstantiate(Class<?> clss) {

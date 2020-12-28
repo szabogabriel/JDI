@@ -11,6 +11,7 @@ import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.jdi.data.MultiParamConstructor;
 import com.jdi.data.ParamInterface;
 import com.jdi.data.ParamInterfaceImpl;
 import com.jdi.data.TestInterface;
@@ -117,6 +118,19 @@ public class ServiceFactoryTest {
 		
 		assertTrue(tmp.isPresent());
 		assertNotNull(tmp.get());
+	}
+	
+	@Test
+	public void testMultipleConstructorParam() {
+		configService.set(ServiceFactory.PREFIX_IMPL + TestInterface.class.getName(), TestInterfaceImpl1.class.getName());
+		configService.set(ServiceFactory.PREFIX_IMPL + ParamInterface.class.getName(), ParamInterfaceImpl.class.getName());
+		
+		Optional<MultiParamConstructor> tmp = serviceFactory.getServiceImpl(MultiParamConstructor.class);
+		
+		assertTrue(tmp.isPresent());
+		assertNotNull(tmp.get());
+		assertNotNull(tmp.get().paramIntf);
+		assertNotNull(tmp.get().paramTestIntf);
 	}
 	
 }
