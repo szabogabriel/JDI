@@ -110,13 +110,13 @@ public class ServiceFactoryImpl implements ServiceFactory {
 		if (isInterfaceOrAbstractClass(clss)) {
 			implementationToCreate = getServiceClassFromConfig(clss);
 		} else {
-			implementationToCreate = Optional.of(clss.getName());
+			implementationToCreate = Optional.of(clss.getCanonicalName());
 		}
 		return implementationToCreate;
 	}
 	
 	private Optional<String> getServiceClassFromConfig(Class<?> clss) {
-		return CONFIG.get(PREFIX_IMPL + clss.getName());
+		return CONFIG.get(PREFIX_IMPL + clss.getCanonicalName());
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -131,7 +131,7 @@ public class ServiceFactoryImpl implements ServiceFactory {
 	}
 	
 	private boolean isSingleton(Class<?> clss) {
-		Optional<String> type = CONFIG.get(PREFIX_TYPE + clss.getName());
+		Optional<String> type = CONFIG.get(PREFIX_TYPE + clss.getCanonicalName());
 		return 
 				!type.isPresent() || 
 				ServiceClassType.getType(type.get()).equals(ServiceClassType.SINGLETON);
