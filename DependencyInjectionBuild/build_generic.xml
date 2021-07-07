@@ -12,6 +12,7 @@
 		<prepareProperties projName="${project.name}"/>
 		<checkProjectType projName="${project.name}"/>
 		
+		<antcall target="init"/>
 		<antcall target="clean"/>
 		<antcall target="buildJAR"/>
 		<antcall target="buildWAR"/>
@@ -19,6 +20,10 @@
 		<antcall target="packageJAR"/>
 		<antcall target="packageWAR"/>
 		<antcall target="packageZIP"/>
+	</target>
+	
+	<target name="init">
+		<mkdir dir="${repository.local}"/>
 	</target>
 
 	<target name="clean" unless="noClean">
@@ -77,6 +82,10 @@
 	</target>
 	
 	<target name="checkLibraryGithub" if="isGithub">
+		<echo message="--- Not implemented yet. ---"/>
+	</target>
+	
+	<target name="checkLibraryLocal" if="isLocal">
 		<echo message="--- Not implemented yet. ---"/>
 	</target>
 

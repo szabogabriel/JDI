@@ -57,6 +57,9 @@
 			<condition property="isGithub">
 				<equals arg1="${project.type.@{libName}}" arg2="Github"/>
 			</condition>
+			<condition property="isLocal">
+				<equals arg1="${project.type.@{libName}}" arg2="Local"/>
+			</condition>
 		</sequential>
 	</macrodef>
 	
