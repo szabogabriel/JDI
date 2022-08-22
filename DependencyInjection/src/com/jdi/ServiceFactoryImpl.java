@@ -23,21 +23,27 @@ public class ServiceFactoryImpl implements ServiceFactory {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public <T> Optional<T> getServiceImpl(Class<T> service) {
+	public synchronized <T> Optional<T> getServiceImpl(Class<T> service) {
+		System.out.println("Accessing service: " + service.getCanonicalName());
 		Optional<T> ret = Optional.empty();
 		if (service != null) {
 			Optional<String> implementationToCreate = getClassToInstantiate(service);
 			if (implementationToCreate.isPresent()) {
 				String implToCreate = implementationToCreate.get();
 				if (isInCache(implToCreate)) {
+					System.out.println("Service " + service.getCanonicalName() + " loaded from cache.");
 					ret = getFromCache(implToCreate);					
 				} else {
+					System.out.println("Creating new instance of service " + service.getCanonicalName() + ".");
 					try {
 						Object newInstance = createInstance(implToCreate);
-						if (isSingleton(service)) {
+						ret = Optional.ofNullable((T)newInstance);
+						if (isSingleton(service) && ret.isPresent()) {
 							storeInCache(newInstance.getClass(), newInstance);
 						}
-						ret = Optional.of((T)newInstance);
+						if (ret.isEmpty()) {
+							System.err.println("Couldn't create instance of " + implToCreate + ".");
+						}
 					} catch (ClassNotFoundException |InstantiationException | IllegalAccessException  ex) {
 						ex.printStackTrace();
 					}
@@ -58,11 +64,15 @@ public class ServiceFactoryImpl implements ServiceFactory {
 		List<Constructor<?>> constructors = getPublicConstructors(clss.getConstructors());
 		
 		if (isPublicZeroArgumentConstructorPresent(constructors)) {
+			System.out.println("Creating new instance of " + name + " with default constructor.");
 			ret = clss.newInstance();
 		} else {
+			System.out.println("Creating new instance of " + name + " with parameterized constructor.");
 			ret = createInstance(constructors);
 		}
-		
+		if (ret != null) {
+			System.out.println("New instance of " + name + " created.");
+		}
 		return ret;
 	}
 	
@@ -90,8 +100,11 @@ public class ServiceFactoryImpl implements ServiceFactory {
 				ret = constructor.newInstance(paramsToSend);
 			} catch (InstantiationException | IllegalAccessException | IllegalArgumentException
 					| InvocationTargetException e) {
+				e.printStackTrace();
 				ret = null;
 			}
+		} else {
+			System.err.println("Missing constructor parameters.");
 		}
 		return ret;
 	}

@@ -4,8 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-import com.jdi.ConfigService;
-
 public class MockConfigService implements ConfigService {
 	
 	public static final String MAPPING_TEST_PLACEHOLDER = "MAPPING_TEST_PLACEHOLDER";

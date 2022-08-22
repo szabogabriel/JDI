@@ -1,15 +1,15 @@
 package com.jdi;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Optional;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.jdi.data.MultiParamConstructor;
 import com.jdi.data.ParamInterface;
@@ -25,21 +25,21 @@ public class ServiceFactoryTest {
 	private MockConfigService configService;
 	private ServiceFactory serviceFactory;
 	
-	@Before
-	public void prepare() {
+	@BeforeEach
+	void prepare() {
 		configService = new MockConfigService();
 		serviceFactory = new ServiceFactoryImpl(configService);
 	}
 	
 	@Test
-	public void testNullClassParameter() {
+	void testNullClassParameter() {
 		Optional<Object> ret = serviceFactory.getServiceImpl(null);
 		
 		assertFalse(ret.isPresent());
 	}
 	
 	@Test
-	public void testCreateInstanceOfClassWithNoConstructor() {
+	void testCreateInstanceOfClassWithNoConstructor() {
 		Optional<String> tmp = serviceFactory.getServiceImpl(String.class);
 		
 		assertTrue(tmp.isPresent());
@@ -47,7 +47,7 @@ public class ServiceFactoryTest {
 	}
 	
 	@Test
-	public void testCreateInstanceOfServiceImplWithNoConstructorSingleton() {
+	void testCreateInstanceOfServiceImplWithNoConstructorSingleton() {
 		configService.set(ServiceFactory.PREFIX_IMPL + TestInterface.class.getName(), TestInterfaceImpl1.class.getName());
 		
 		Optional<TestInterface> tmp = serviceFactory.getServiceImpl(TestInterface.class);
@@ -64,7 +64,7 @@ public class ServiceFactoryTest {
 	}
 	
 	@Test
-	public void testCreateInstanceOfServiceImplWithNoConstructorMultiton() {
+	void testCreateInstanceOfServiceImplWithNoConstructorMultiton() {
 		configService.set(ServiceFactory.PREFIX_IMPL + TestInterface.class.getName(), TestInterfaceImpl1.class.getName());
 		configService.set(ServiceFactory.PREFIX_TYPE + TestInterface.class.getName(), "multiton");
 		
@@ -82,7 +82,7 @@ public class ServiceFactoryTest {
 	}
 	
 	@Test
-	public void testCreateInstanceOfServiceWithConfigServiceAttribute() {
+	void testCreateInstanceOfServiceWithConfigServiceAttribute() {
 		configService.set(ServiceFactory.PREFIX_IMPL + TestInterface.class.getName(), TestInterfaceImpl2.class.getName());
 		
 		Optional<TestInterface> tmp = serviceFactory.getServiceImpl(TestInterface.class);
@@ -99,7 +99,7 @@ public class ServiceFactoryTest {
 	}
 	
 	@Test
-	public void testCreateInstanceOfServiceImplWithMultipleAttributes() {
+	void testCreateInstanceOfServiceImplWithMultipleAttributes() {
 		configService.set(ServiceFactory.PREFIX_IMPL + TestInterface.class.getName(), TestInterfaceImpl3.class.getName());
 		configService.set(ServiceFactory.PREFIX_IMPL + ParamInterface.class.getName(), ParamInterfaceImpl.class.getName());
 		
@@ -110,7 +110,7 @@ public class ServiceFactoryTest {
 	}
 	
 	@Test
-	public void testCreateInstanceOfServiceImplNotAvailableParams() {
+	void testCreateInstanceOfServiceImplNotAvailableParams() {
 		configService.set(ServiceFactory.PREFIX_IMPL + TestInterface.class.getName(), TestInterfaceImpl4.class.getName());
 		configService.set(ServiceFactory.PREFIX_IMPL + ParamInterface.class.getName(), ParamInterfaceImpl.class.getName());
 		
@@ -121,7 +121,7 @@ public class ServiceFactoryTest {
 	}
 	
 	@Test
-	public void testMultipleConstructorParam() {
+	void testMultipleConstructorParam() {
 		configService.set(ServiceFactory.PREFIX_IMPL + TestInterface.class.getName(), TestInterfaceImpl1.class.getName());
 		configService.set(ServiceFactory.PREFIX_IMPL + ParamInterface.class.getName(), ParamInterfaceImpl.class.getName());
 		
