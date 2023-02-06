@@ -133,4 +133,28 @@ public class ServiceFactoryTest {
 		assertNotNull(tmp.get().paramTestIntf);
 	}
 	
+	@Test
+	void testDiscriminator() {
+		configService.set("a." + ServiceFactory.PREFIX_IMPL + TestInterface.class.getName(), TestInterfaceImpl1.class.getName());
+		configService.set("b." + ServiceFactory.PREFIX_IMPL + TestInterface.class.getName(), TestInterfaceImpl2.class.getName());
+		configService.set(ServiceFactory.PREFIX_IMPL + TestInterface.class.getName(), TestInterfaceImpl3.class.getName());
+		configService.set(ServiceFactory.PREFIX_IMPL + ParamInterface.class.getName(), ParamInterfaceImpl.class.getName());
+		configService.set(ServiceFactory.PREFIX_TYPE + TestInterface.class.getName(), ServiceClassType.MULTITON.toString());
+		
+		// Using discriminator a with no dot provided (e.g. "a").
+		Optional<TestInterface> tmp = serviceFactory.getServiceImpl(TestInterface.class, "a");
+		assertTrue(tmp.isPresent());
+		assertTrue(tmp.get() instanceof TestInterfaceImpl1);
+		
+		// Using discriminator b with provided dot (e.g. "b.").
+		tmp = serviceFactory.getServiceImpl(TestInterface.class, "b.");
+		assertTrue(tmp.isPresent());
+		assertTrue(tmp.get() instanceof TestInterfaceImpl2);
+		
+		// Using fallback service lookup with no discriminator.
+		tmp = serviceFactory.getServiceImpl(TestInterface.class);
+		assertTrue(tmp.isPresent());
+		assertTrue(tmp.get() instanceof TestInterfaceImpl3);
+	}
+	
 }

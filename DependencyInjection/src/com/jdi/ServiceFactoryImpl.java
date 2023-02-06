@@ -20,14 +20,18 @@ public class ServiceFactoryImpl implements ServiceFactory {
 	public ServiceFactoryImpl(ConfigService configService) {
 		CONFIG = configService;
 	}
+	
+	public synchronized <T> Optional<T> getServiceImpl(Class<T> service) {
+		return this.getServiceImpl(service, null);
+	}
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public synchronized <T> Optional<T> getServiceImpl(Class<T> service) {
+	public synchronized <T> Optional<T> getServiceImpl(Class<T> service, String discriminator) {
 		System.out.println("Accessing service: " + service.getCanonicalName());
 		Optional<T> ret = Optional.empty();
 		if (service != null) {
-			Optional<String> implementationToCreate = getClassToInstantiate(service);
+			Optional<String> implementationToCreate = getClassToInstantiate(service, discriminator);
 			if (implementationToCreate.isPresent()) {
 				String implToCreate = implementationToCreate.get();
 				if (isInCache(implToCreate)) {
@@ -129,6 +133,7 @@ public class ServiceFactoryImpl implements ServiceFactory {
 				if (toCreate.isPresent()) {
 					paramsToSend[j] = toCreate.get();
 				} else {
+					System.err.println("Missing parameter: " + params[j].getType());
 					paramsToSend[j] = null;
 				}
 			}
@@ -145,18 +150,18 @@ public class ServiceFactoryImpl implements ServiceFactory {
 		return constructors.parallelStream().filter(c -> c.getParameterCount() == 0).findAny().isPresent();
 	}
 	
-	private Optional<String> getClassToInstantiate(Class<?> clss) {
+	private Optional<String> getClassToInstantiate(Class<?> clss, String discriminator) {
 		Optional<String> implementationToCreate = Optional.empty();
-		if (isInterfaceOrAbstractClass(clss)) {
-			implementationToCreate = getServiceClassFromConfig(clss);
-		} else {
+		implementationToCreate = getServiceClassFromConfig(clss, discriminator);
+		if (implementationToCreate.isEmpty() && !isInterfaceOrAbstractClass(clss)) {
 			implementationToCreate = Optional.of(clss.getCanonicalName());
 		}
 		return implementationToCreate;
 	}
 	
-	private Optional<String> getServiceClassFromConfig(Class<?> clss) {
-		return CONFIG.get(PREFIX_IMPL + clss.getCanonicalName());
+	private Optional<String> getServiceClassFromConfig(Class<?> clss, String discriminator) {
+		String discriminatorPrefix = (discriminator == null) ? "" : discriminator + (discriminator.endsWith(".") ? "" : ".");
+		return CONFIG.get(discriminatorPrefix + PREFIX_IMPL + clss.getCanonicalName());
 	}
 	
 	@SuppressWarnings("unchecked")

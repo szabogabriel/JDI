@@ -10,5 +10,7 @@ public interface ServiceFactory {
 	public static final String VALUE_MULTITON = "MULTITON";
 	
 	public <T> Optional<T> getServiceImpl(Class<T> service);
+	
+	public <T> Optional<T> getServiceImpl(Class<T> service, String discriminator);
 
 }
