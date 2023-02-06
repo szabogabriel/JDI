@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.ServiceLoader;
 import java.util.stream.Collectors;
 
 public class ServiceFactoryImpl implements ServiceFactory {
@@ -153,8 +154,12 @@ public class ServiceFactoryImpl implements ServiceFactory {
 	private Optional<String> getClassToInstantiate(Class<?> clss, String discriminator) {
 		Optional<String> implementationToCreate = Optional.empty();
 		implementationToCreate = getServiceClassFromConfig(clss, discriminator);
-		if (implementationToCreate.isEmpty() && !isInterfaceOrAbstractClass(clss)) {
-			implementationToCreate = Optional.of(clss.getCanonicalName());
+		if (implementationToCreate.isEmpty()) {
+			if (isInterfaceOrAbstractClass(clss)) {
+				// Insert implementation finder here.
+			} else {
+				implementationToCreate = Optional.of(clss.getCanonicalName());
+			}
 		}
 		return implementationToCreate;
 	}
