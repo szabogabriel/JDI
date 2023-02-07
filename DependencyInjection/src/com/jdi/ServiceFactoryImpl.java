@@ -9,7 +9,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.ServiceLoader;
 import java.util.stream.Collectors;
 
 public class ServiceFactoryImpl implements ServiceFactory {
@@ -29,28 +28,33 @@ public class ServiceFactoryImpl implements ServiceFactory {
 	@SuppressWarnings("unchecked")
 	@Override
 	public synchronized <T> Optional<T> getServiceImpl(Class<T> service, String discriminator) {
-		System.out.println("Accessing service: " + service.getCanonicalName());
 		Optional<T> ret = Optional.empty();
 		if (service != null) {
+			System.out.println("Accessing service: " + service.getCanonicalName());
+			if (isEnumeration(service)) {
+				Enum<?> retEnum = Enum.valueOf((Class<? extends Enum>)service, discriminator);
+				ret = Optional.of((T)retEnum);
+			} else {
 			Optional<String> implementationToCreate = getClassToInstantiate(service, discriminator);
-			if (implementationToCreate.isPresent()) {
-				String implToCreate = implementationToCreate.get();
-				if (isInCache(implToCreate)) {
-					System.out.println("Service " + service.getCanonicalName() + " loaded from cache.");
-					ret = getFromCache(implToCreate);					
-				} else {
-					System.out.println("Creating new instance of service " + service.getCanonicalName() + ".");
-					try {
-						Object newInstance = createInstance(implToCreate);
-						ret = Optional.ofNullable((T)newInstance);
-						if (isSingleton(service) && ret.isPresent()) {
-							storeInCache(newInstance.getClass(), newInstance);
+				if (implementationToCreate.isPresent()) {
+					String implToCreate = implementationToCreate.get();
+					if (isInCache(implToCreate)) {
+						System.out.println("Service " + service.getCanonicalName() + " loaded from cache.");
+						ret = getFromCache(implToCreate);					
+					} else {
+						System.out.println("Creating new instance of service " + service.getCanonicalName() + ".");
+						try {
+							Object newInstance = createInstance(implToCreate);
+							ret = Optional.ofNullable((T)newInstance);
+							if (isSingleton(service) && ret.isPresent()) {
+								storeInCache(newInstance.getClass(), newInstance);
+							}
+							if (ret.isEmpty()) {
+								System.err.println("Couldn't create instance of " + implToCreate + ".");
+							}
+						} catch (ClassNotFoundException |InstantiationException | IllegalAccessException  ex) {
+							ex.printStackTrace();
 						}
-						if (ret.isEmpty()) {
-							System.err.println("Couldn't create instance of " + implToCreate + ".");
-						}
-					} catch (ClassNotFoundException |InstantiationException | IllegalAccessException  ex) {
-						ex.printStackTrace();
 					}
 				}
 			}
@@ -130,7 +134,16 @@ public class ServiceFactoryImpl implements ServiceFactory {
 			if (params[j].getType().equals(ConfigService.class)) {
 				paramsToSend[j] = CONFIG;
 			} else {
-				Optional<?> toCreate = getServiceImpl(params[j].getType());
+				Optional<?> toCreate;
+				Optional<String> instanceName = getDiscriminator(params[j]);
+
+				if (instanceName.isPresent()) {
+					toCreate = getServiceImpl(params[j].getType(), instanceName.get());
+				}
+				else {
+					toCreate = getServiceImpl(params[j].getType());
+				}
+				
 				if (toCreate.isPresent()) {
 					paramsToSend[j] = toCreate.get();
 				} else {
@@ -141,6 +154,17 @@ public class ServiceFactoryImpl implements ServiceFactory {
 		}
 		
 		return paramsToSend;
+	}
+	
+	private Optional<String> getDiscriminator(Parameter param) {
+		Optional<String> ret = Optional.empty();
+		if (param.isAnnotationPresent(Discriminator.class)) {
+			Discriminator disc = param.getAnnotation(Discriminator.class);
+			if (disc != null) {
+				ret = Optional.of(disc.value());
+			}
+		}
+		return ret;
 	}
 	
 	private List<Constructor<?>> getPublicConstructors(Constructor<?> [] constructors) {
@@ -178,6 +202,10 @@ public class ServiceFactoryImpl implements ServiceFactory {
 		return
 			clss.isInterface() ||
 			Modifier.isAbstract(clss.getModifiers());
+	}
+	
+	private boolean isEnumeration(Class<?> clss) {
+		return clss.isEnum();
 	}
 	
 	private boolean isSingleton(Class<?> clss) {

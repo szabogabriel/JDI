@@ -12,6 +12,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import com.jdi.data.MultiParamConstructor;
+import com.jdi.data.MyEnum;
 import com.jdi.data.ParamInterface;
 import com.jdi.data.ParamInterfaceImpl;
 import com.jdi.data.TestInterface;
@@ -19,6 +20,7 @@ import com.jdi.data.TestInterfaceImpl1;
 import com.jdi.data.TestInterfaceImpl2;
 import com.jdi.data.TestInterfaceImpl3;
 import com.jdi.data.TestInterfaceImpl4;
+import com.jdi.data.TestInterfaceImpl5;
 
 public class ServiceFactoryTest {
 	
@@ -155,6 +157,22 @@ public class ServiceFactoryTest {
 		tmp = serviceFactory.getServiceImpl(TestInterface.class);
 		assertTrue(tmp.isPresent());
 		assertTrue(tmp.get() instanceof TestInterfaceImpl3);
+	}
+	
+	@Test
+	void testEnum() {
+		Optional<MyEnum> enumInstance = serviceFactory.getServiceImpl(MyEnum.class, "VALUE_A");
+		assertTrue(enumInstance.isPresent());
+		assertEquals(MyEnum.VALUE_A, enumInstance.get());
+	}
+	
+	@Test
+	void testEnumInjection() {
+		configService.set(ServiceFactory.PREFIX_IMPL + TestInterface.class.getName(), TestInterfaceImpl5.class.getName());
+		
+		Optional<TestInterface> tmp = serviceFactory.getServiceImpl(TestInterface.class);
+		assertTrue(tmp.get() instanceof TestInterfaceImpl5);
+		assertEquals(MyEnum.VALUE_B, ((TestInterfaceImpl5)tmp.get()).getEnum());
 	}
 	
 }
