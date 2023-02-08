@@ -1,6 +1,6 @@
 package com.jdi.data;
 
-import com.jdi.Discriminator;
+import com.jdi.annotations.Discriminator;
 
 public class TestInterfaceImpl5 {
 	

@@ -12,6 +12,8 @@ public class MockConfigService implements ConfigService {
 	
 	private int callCounter = 0;
 	
+	private Optional<String> packageToScanTo = Optional.empty();
+	
 	@Override
 	public Optional<String> get(String key) {
 		callCounter++;
@@ -20,6 +22,14 @@ public class MockConfigService implements ConfigService {
 			ret = Optional.of(valuesToReturn.get(key));
 		}
 		return ret;
+	}
+	
+	public Optional<String> getPackageScanRoot() {
+		return packageToScanTo;
+	}
+	
+	public void setPackageToScan(String o) {
+		this.packageToScanTo = Optional.of(o);
 	}
 	
 	public void set(String key, String value) {

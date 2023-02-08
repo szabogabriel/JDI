@@ -15,6 +15,8 @@ import com.jdi.data.MultiParamConstructor;
 import com.jdi.data.MyEnum;
 import com.jdi.data.ParamInterface;
 import com.jdi.data.ParamInterfaceImpl;
+import com.jdi.data.ScanImpl;
+import com.jdi.data.ScanInterface;
 import com.jdi.data.TestInterface;
 import com.jdi.data.TestInterfaceImpl1;
 import com.jdi.data.TestInterfaceImpl2;
@@ -173,6 +175,15 @@ public class ServiceFactoryTest {
 		Optional<TestInterface> tmp = serviceFactory.getServiceImpl(TestInterface.class);
 		assertTrue(tmp.get() instanceof TestInterfaceImpl5);
 		assertEquals(MyEnum.VALUE_B, ((TestInterfaceImpl5)tmp.get()).getEnum());
+	}
+	
+	@Test
+	void simpleClasspathScan() { 
+		configService.setPackageToScan("com.jdi");
+		
+		Optional<ScanInterface> tmp = serviceFactory.getServiceImpl(ScanInterface.class);
+		assertTrue(tmp.isPresent());
+		assertTrue(tmp.get() instanceof ScanImpl);
 	}
 	
 }

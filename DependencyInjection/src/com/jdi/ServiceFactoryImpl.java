@@ -9,7 +9,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
+
+import com.jdi.annotations.Discriminator;
+import com.jdi.util.ClassScanner;
 
 public class ServiceFactoryImpl implements ServiceFactory {
 
@@ -177,15 +181,30 @@ public class ServiceFactoryImpl implements ServiceFactory {
 	
 	private Optional<String> getClassToInstantiate(Class<?> clss, String discriminator) {
 		Optional<String> implementationToCreate = Optional.empty();
+		
 		implementationToCreate = getServiceClassFromConfig(clss, discriminator);
 		if (implementationToCreate.isEmpty()) {
 			if (isInterfaceOrAbstractClass(clss)) {
-				// Insert implementation finder here.
+				implementationToCreate = getServiceClassFromClasspathScan(clss, discriminator);
 			} else {
 				implementationToCreate = Optional.of(clss.getCanonicalName());
 			}
 		}
 		return implementationToCreate;
+	}
+	
+	private Optional<String> getServiceClassFromClasspathScan(Class<?> clss, String discriminator) {
+		Optional<String> ret = Optional.empty();
+		Optional<String> packageToScan = CONFIG.getPackageScanRoot();
+		if (packageToScan.isPresent()) {
+			Set<?> classes = ClassScanner.scanForPackages(packageToScan.get(), clss);
+			if (classes != null && !classes.isEmpty()) {
+				for (Object it : classes) {
+					ret = Optional.of(((Class<?>)it).getName());
+				}
+			}
+		}
+		return ret;
 	}
 	
 	private Optional<String> getServiceClassFromConfig(Class<?> clss, String discriminator) {
