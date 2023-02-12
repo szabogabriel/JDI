@@ -1,8 +1,8 @@
 package com.jdi.data;
 
-import com.jdi.annotations.Prototype;
+import com.jdi.annotations.Multiton;
 
-@Prototype
+@Multiton
 public class TestInterfaceImpl6 implements TestInterface {
 
 }

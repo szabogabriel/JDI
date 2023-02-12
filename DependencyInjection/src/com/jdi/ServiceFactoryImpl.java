@@ -13,7 +13,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.jdi.annotations.Discriminator;
-import com.jdi.annotations.Prototype;
+import com.jdi.annotations.Multiton;
 import com.jdi.services.ClasspathScannerService;
 import com.jdi.services.impl.ClasspathScannerServiceImpl;
 
@@ -241,7 +241,7 @@ public class ServiceFactoryImpl implements ServiceFactory {
 		boolean ret = true;
 
 		// First we check if there is annotation present.
-		if (clss.isAnnotationPresent(Prototype.class) || toBeReturned.isAnnotationPresent(Prototype.class)) {
+		if (clss.isAnnotationPresent(Multiton.class) || toBeReturned.isAnnotationPresent(Multiton.class)) {
 			ret = false;
 		}
 		
