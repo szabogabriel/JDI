@@ -13,6 +13,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.jdi.annotations.Discriminator;
+import com.jdi.annotations.Prototype;
 import com.jdi.services.ClasspathScannerService;
 import com.jdi.services.impl.ClasspathScannerServiceImpl;
 
@@ -58,7 +59,7 @@ public class ServiceFactoryImpl implements ServiceFactory {
 						try {
 							Object newInstance = createInstance(implToCreate);
 							ret = Optional.ofNullable((T)newInstance);
-							if (isSingleton(service) && ret.isPresent()) {
+							if (isSingleton(service, newInstance.getClass()) && ret.isPresent()) {
 								storeInCache(newInstance.getClass(), newInstance);
 							}
 							if (ret.isEmpty()) {
@@ -236,11 +237,21 @@ public class ServiceFactoryImpl implements ServiceFactory {
 		return clss.isEnum();
 	}
 	
-	private boolean isSingleton(Class<?> clss) {
+	private boolean isSingleton(Class<?> clss, Class<?> toBeReturned) {
+		boolean ret = true;
+
+		// First we check if there is annotation present.
+		if (clss.isAnnotationPresent(Prototype.class) || toBeReturned.isAnnotationPresent(Prototype.class)) {
+			ret = false;
+		}
+		
+		// But we still have the option to change the value via configuration.
 		Optional<String> type = CONFIG.get(PREFIX_TYPE + clss.getCanonicalName());
-		return 
-				!type.isPresent() || 
-				ServiceClassType.getType(type.get()).equals(ServiceClassType.SINGLETON);
+		if (type.isPresent()) {
+			ret = ServiceClassType.getType(type.get()).equals(ServiceClassType.SINGLETON);
+		}
+		
+		return ret;
 	}
 	
 	private boolean isInCache(String className) {

@@ -23,6 +23,7 @@ import com.jdi.data.TestInterfaceImpl2;
 import com.jdi.data.TestInterfaceImpl3;
 import com.jdi.data.TestInterfaceImpl4;
 import com.jdi.data.TestInterfaceImpl5;
+import com.jdi.data.TestInterfaceImpl6;
 
 public class ServiceFactoryTest {
 	
@@ -184,6 +185,23 @@ public class ServiceFactoryTest {
 		Optional<ScanInterface> tmp = serviceFactory.getServiceImpl(ScanInterface.class);
 		assertTrue(tmp.isPresent());
 		assertTrue(tmp.get() instanceof ScanImpl);
+	}
+	
+	@Test
+	void testPrototypeAnnotation() {
+		configService.set(ServiceFactory.PREFIX_IMPL + TestInterface.class.getName(), TestInterfaceImpl6.class.getName());
+		
+		Optional<TestInterface> tmp = serviceFactory.getServiceImpl(TestInterface.class);
+		assertTrue(tmp.isPresent());
+		
+		int hashCode1 = tmp.get().hashCode();
+		
+		tmp = serviceFactory.getServiceImpl(TestInterface.class);
+		assertTrue(tmp.isPresent());
+		
+		int hashCode2 = tmp.get().hashCode();
+		
+		assertFalse(hashCode1 == hashCode2);
 	}
 	
 }
