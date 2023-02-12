@@ -13,16 +13,24 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.jdi.annotations.Discriminator;
-import com.jdi.util.ClassScanner;
+import com.jdi.services.ClasspathScannerService;
+import com.jdi.services.impl.ClasspathScannerServiceImpl;
 
 public class ServiceFactoryImpl implements ServiceFactory {
 
 	private final ConfigService CONFIG;
 	
-	private final Map<String, Object> CACHE = new HashMap<>();
+	private final ClasspathScannerService CLASSPATH_SERVICE;
 	
+	private final Map<String, Object> CACHE = new HashMap<>();
+
 	public ServiceFactoryImpl(ConfigService configService) {
+		this(configService, new ClasspathScannerServiceImpl());
+	}
+	
+	public ServiceFactoryImpl(ConfigService configService, ClasspathScannerService cpScanService) {
 		CONFIG = configService;
+		CLASSPATH_SERVICE = cpScanService;
 	}
 	
 	public synchronized <T> Optional<T> getServiceImpl(Class<T> service) {
@@ -70,6 +78,7 @@ public class ServiceFactoryImpl implements ServiceFactory {
 		CACHE.put(clss.getName(), o);
 	}
 	
+	@SuppressWarnings("deprecation")
 	private Object createInstance(String name) throws ClassNotFoundException, InstantiationException, IllegalAccessException {
 		Object ret = null;
 		Class<?> clss = Class.forName(name);
@@ -197,7 +206,7 @@ public class ServiceFactoryImpl implements ServiceFactory {
 		Optional<String> ret = Optional.empty();
 		Optional<String> packageToScan = CONFIG.getPackageScanRoot();
 		if (packageToScan.isPresent()) {
-			Set<?> classes = ClassScanner.scanForPackages(packageToScan.get(), clss);
+			Set<?> classes = CLASSPATH_SERVICE.scanForPackages(packageToScan.get(), clss);
 			if (classes != null && !classes.isEmpty()) {
 				for (Object it : classes) {
 					ret = Optional.of(((Class<?>)it).getName());

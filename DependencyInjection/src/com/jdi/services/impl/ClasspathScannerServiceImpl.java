@@ -1,28 +1,31 @@
-package com.jdi.util;
+package com.jdi.services.impl;
 
 import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
-public class ClassScanner {
+import com.jdi.services.ClasspathScannerService;
 
-	private static final char DOT = '.';
-	private static final char SLASH = '/';
-	private static final String CLASS_SUFFIX = ".class";
+public class ClasspathScannerServiceImpl implements ClasspathScannerService {
 
-	private static List<Class<?>> classesOnClasspath = Collections.emptyList();
+	private final char DOT = '.';
+	private final char SLASH = '/';
+	private final String CLASS_SUFFIX = ".class";
 
-	public static Set<?> scanForPackages(String rootPackage, Class<?> supertype) {
+	private Map<String, List<Class<?>>> classesOnClasspath = new HashMap<>();
+
+	public Set<?> scanForPackages(String rootPackage, Class<?> supertype) {
 		initClassList(rootPackage);
 
 		Set ret = new HashSet<>();
 
-		for (Class<?> it : classesOnClasspath) {
+		for (Class<?> it : classesOnClasspath.get(rootPackage)) {
 			if (supertype.isAssignableFrom(it) && !supertype.getName().equals(it.getName())) {
 				ret.add(it);
 			}
@@ -31,12 +34,12 @@ public class ClassScanner {
 		return ret;
 	}
 	
-	private static void initClassList(String rootPackage) {
+	private void initClassList(String rootPackage) {
 		if (classesOnClasspath.size() == 0) {
-			synchronized (ClassScanner.class) {
+			synchronized (ClasspathScannerServiceImpl.class) {
 				if (classesOnClasspath.size() == 0) {
 					try {
-						classesOnClasspath = findClassesInClasspath(rootPackage);
+						classesOnClasspath.put(rootPackage, findClassesInClasspath(rootPackage));
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
@@ -45,7 +48,7 @@ public class ClassScanner {
 		}
 	}
 
-	private static List<Class<?>> findClassesInClasspath(String packageName) throws Exception {
+	private List<Class<?>> findClassesInClasspath(String packageName) throws Exception {
 		ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
 		String path = packageName.replace(DOT, SLASH);
 		Enumeration<URL> resources = classLoader.getResources(path);
@@ -61,7 +64,7 @@ public class ClassScanner {
 		return classes;
 	}
 
-	private static List<Class<?>> findClasses(File directory, String packageName) throws ClassNotFoundException {
+	private List<Class<?>> findClasses(File directory, String packageName) throws ClassNotFoundException {
 		List<Class<?>> classes = new ArrayList<>();
 		if (!directory.exists()) {
 			return classes;
