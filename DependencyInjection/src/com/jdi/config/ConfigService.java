@@ -1,4 +1,4 @@
-package com.jdi;
+package com.jdi.config;
 
 import java.util.Optional;
 

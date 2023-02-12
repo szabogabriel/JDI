@@ -24,6 +24,9 @@ import com.jdi.data.TestInterfaceImpl3;
 import com.jdi.data.TestInterfaceImpl4;
 import com.jdi.data.TestInterfaceImpl5;
 import com.jdi.data.TestInterfaceImpl6;
+import com.jdi.domain.ServiceClassType;
+import com.jdi.services.ServiceFactory;
+import com.jdi.services.impl.ServiceFactoryImpl;
 
 public class ServiceFactoryTest {
 	

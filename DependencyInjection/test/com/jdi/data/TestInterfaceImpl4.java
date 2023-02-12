@@ -2,7 +2,7 @@ package com.jdi.data;
 
 import java.util.Map;
 
-import com.jdi.ConfigService;
+import com.jdi.config.ConfigService;
 
 public class TestInterfaceImpl4 {
 	

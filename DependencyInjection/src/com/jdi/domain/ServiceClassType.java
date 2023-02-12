@@ -1,4 +1,4 @@
-package com.jdi;
+package com.jdi.domain;
 
 public enum ServiceClassType {
 	

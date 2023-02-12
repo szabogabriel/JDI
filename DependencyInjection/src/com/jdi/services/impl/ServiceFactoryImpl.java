@@ -1,4 +1,4 @@
-package com.jdi;
+package com.jdi.services.impl;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -14,8 +14,10 @@ import java.util.stream.Collectors;
 
 import com.jdi.annotations.Discriminator;
 import com.jdi.annotations.Multiton;
+import com.jdi.config.ConfigService;
+import com.jdi.domain.ServiceClassType;
 import com.jdi.services.ClasspathScannerService;
-import com.jdi.services.impl.ClasspathScannerServiceImpl;
+import com.jdi.services.ServiceFactory;
 
 public class ServiceFactoryImpl implements ServiceFactory {
 
