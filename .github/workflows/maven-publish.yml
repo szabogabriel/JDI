@@ -4,6 +4,11 @@
 name: Maven Package
 
 on:
+  push:
+    branches:
+    - main
+    - release/*
+  workflow_dispatch:
   release:
     types: [created]
 
@@ -26,9 +31,9 @@ jobs:
         settings-path: ${{ github.workspace }} # location for the settings.xml file
 
     - name: Build with Maven
-      run: mvn -B package --file pom.xml
+      run: mvn -B package --file DependencyInjection/pom.xml
 
     - name: Publish to GitHub Packages Apache Maven
-      run: mvn deploy -s $GITHUB_WORKSPACE/settings.xml
+      run: mvn deploy -s $GITHUB_WORKSPACE/settings.xml --file DependencyInjection/pom.xml
       env:
         GITHUB_TOKEN: ${{ github.token }}
