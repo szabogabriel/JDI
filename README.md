@@ -4,7 +4,7 @@ JDI is a small dependency injection framework for Java. It uses DI via construct
 
 ## Goal of the project
 
-The project is aimed as a rather simplistic DI for Java. It was implemented using JDK 8 and consist of only a small number (1) of external library dependency other then the Java SDK for the runtime. To be able to run the unit tests, an additional library is necessary, since they were written using JUnit 4. The JUnit version integrated into the current Eclipse version was used to develop the tests.
+The project is aimed as a rather simplistic DI for Java. It was implemented using JDK 8 and consist of only a small number (1) of external library dependency other then the Java SDK for the runtime. The reason for the external library is so we would be able to run the unit tests, which were written using JUnit 5.
 
 ## Configuration via the configuration service
 
