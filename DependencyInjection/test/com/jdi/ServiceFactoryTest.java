@@ -204,4 +204,22 @@ public class ServiceFactoryTest {
 		assertFalse(hashCode1 == hashCode2);
 	}
 	
+	@Test
+	void overridePrototypeAnnotationByConfiguration() {
+		configService.set(ServiceFactory.PREFIX_IMPL + TestInterface.class.getName(), TestInterfaceImpl6.class.getName());
+		configService.set(ServiceFactory.PREFIX_TYPE + TestInterface.class.getName(), ServiceClassType.SINGLETON.toString());
+		
+		Optional<TestInterface> tmp = serviceFactory.getServiceImpl(TestInterface.class);
+		assertTrue(tmp.isPresent());
+		
+		int hashCode1 = tmp.get().hashCode();
+		
+		tmp = serviceFactory.getServiceImpl(TestInterface.class);
+		assertTrue(tmp.isPresent());
+		
+		int hashCode2 = tmp.get().hashCode();
+		
+		assertTrue(hashCode1 == hashCode2);
+	}
+	
 }
