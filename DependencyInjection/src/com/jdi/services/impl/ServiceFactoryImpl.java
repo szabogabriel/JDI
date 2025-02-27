@@ -64,7 +64,7 @@ public class ServiceFactoryImpl implements ServiceFactory {
 							if (isSingleton(service, newInstance.getClass()) && ret.isPresent()) {
 								storeInCache(newInstance.getClass(), newInstance);
 							}
-							if (ret.isEmpty()) {
+							if (!ret.isPresent()) {
 								System.err.println("Couldn't create instance of " + implToCreate + ".");
 							}
 						} catch (ClassNotFoundException |InstantiationException | IllegalAccessException  ex) {
@@ -195,7 +195,7 @@ public class ServiceFactoryImpl implements ServiceFactory {
 		Optional<String> implementationToCreate = Optional.empty();
 		
 		implementationToCreate = getServiceClassFromConfig(clss, discriminator);
-		if (implementationToCreate.isEmpty()) {
+		if (!implementationToCreate.isPresent()) {
 			if (isInterfaceOrAbstractClass(clss)) {
 				implementationToCreate = getServiceClassFromClasspathScan(clss, discriminator);
 			} else {
