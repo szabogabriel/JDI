@@ -1,9 +1,0 @@
-<project name="DependencyInjection" basedir="." default="start">
-	
-	<import file="../DependencyInjectionBuild/build_generic.xml" />
-	
-	<target name="start">
-		<ant antfile="../DependencyInjectionBuild/dependencies.xml" target="DependencyInjection" inheritall="false"/>
-	</target>
-	
-</project>
